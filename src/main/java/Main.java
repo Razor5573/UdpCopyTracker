@@ -7,6 +7,5 @@ public class Main {
 
         realThreadReader.start();
         realThreadSender.start();
-
     }
 }

@@ -14,7 +14,7 @@ public class Reader {
 
         try {
             multicastSocket.receive(receivedDatagram);
-            CopyTracker.trackNewCopy(receivedDatagram);
+            CopyTracker.trackCopy(receivedDatagram);
         } catch (IOException exception) {
             System.out.println("Failed to receive the multicast datagram");
         }

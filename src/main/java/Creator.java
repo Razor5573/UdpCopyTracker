@@ -12,7 +12,7 @@ public class Creator {
         }
 
         try {
-            multicastSocket.joinGroup(InetAddress.getByName(args[0]));
+            multicastSocket.joinGroup(InetAddress.getByName(args[0])); // не забыть закрыть
         } catch (IOException exception) {
             System.out.println("Failed to join to the multicast group");
         }

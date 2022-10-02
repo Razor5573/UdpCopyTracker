@@ -1,39 +1,46 @@
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.util.HashMap;
+import java.text.SimpleDateFormat;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CopyTracker {
-    private static HashMap<String, String> appCopies = new HashMap<>();
-    private static HashMap<String, InetAddress> IPOfCopies = new HashMap<>();
-    private static String startAppTime = null;
+    private static ConcurrentHashMap<String, Long> appCopies = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, InetAddress> IPOfCopies = new ConcurrentHashMap<>();
     private static String uuid = null;
-    private static int isAliveCounter = 0;
+    private static Long time = null;
 
-    public static void trackNewCopy(DatagramPacket receivedDatagram) {
+    public static synchronized void trackCopy(DatagramPacket receivedDatagram) {
         String data = new String(receivedDatagram.getData()).trim();
 
-        if (data.endsWith(";")) {
-            startAppTime = data;
-        } else {
+        if (!(("I'm alive" + uuid).equals(data))) {
             uuid = data;
+        } else {
+            time = System.currentTimeMillis();
         }
 
-        if (startAppTime != null && uuid != null) {
-            appCopies.put(uuid, startAppTime);
+        if (time != null && uuid != null) {
+            appCopies.put(uuid, time);
             IPOfCopies.put(uuid, receivedDatagram.getAddress());
+            for (String key : appCopies.keySet()) {
+                System.out.println(IPOfCopies.get(key).toString().substring(1) + " with UUID \"" + key + "\" sent ping at " +
+                        new SimpleDateFormat("HH:mm:ss").format(appCopies.get(key)));
+
+            }
+            System.out.println("\n");
         }
 
-        for (String key : appCopies.keySet()) {
-            System.out.println(IPOfCopies.get(key).toString().substring(1) + " connected at " + appCopies.get(key));
-        }
+        for (Map.Entry<String, Long> appCopiesEntry : appCopies.entrySet()) {
+            if (System.currentTimeMillis() - appCopiesEntry.getValue() > 10000) {
+                appCopies.remove(appCopiesEntry.getKey());
+                IPOfCopies.remove(appCopiesEntry.getKey());
+                if (IPOfCopies.containsKey(appCopiesEntry.getKey()) && appCopies.containsKey(appCopiesEntry.getKey())) {
+                    System.out.println(IPOfCopies.get(appCopiesEntry.getKey()).toString().substring(1)
+                            + " with UUID \"" + appCopiesEntry.getKey() + "\" sent ping at " +
+                            new SimpleDateFormat("HH:mm:ss").format(appCopies.get(appCopiesEntry.getKey())));
+                }
 
-        System.out.println("\n");
-        if (uuid == null) {
-            isAliveCounter++;
-        }
-        if (isAliveCounter == 10) {
-            appCopies.remove(uuid);
-            IPOfCopies.remove(uuid);
+            }
         }
     }
 }
