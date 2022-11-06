@@ -7,7 +7,6 @@ import java.net.InetAddress;
 public class Sender {
     public static void sendAppData(MulticastSocket udpSocket, String[] args, String message) {
         DatagramPacket datagram = null;
-
         try {
             datagram = new DatagramPacket(message.getBytes(), message.getBytes().length, InetAddress.getByName(args[0]), 8888);
         } catch (UnknownHostException exception) {

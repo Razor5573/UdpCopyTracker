@@ -1,16 +1,15 @@
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CopyTracker {
+public class CopyAdder {
     private static ConcurrentHashMap<String, Long> appCopies = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, InetAddress> IPOfCopies = new ConcurrentHashMap<>();
     private static String uuid = null;
     private static Long time = null;
 
-    public static synchronized void trackCopy(DatagramPacket receivedDatagram) {
+    public static synchronized void addCopy(DatagramPacket receivedDatagram) {
         String data = new String(receivedDatagram.getData()).trim();
 
         if (!(("I'm alive" + uuid).equals(data))) {
@@ -29,18 +28,13 @@ public class CopyTracker {
             }
             System.out.println("\n");
         }
+    }
 
-        for (Map.Entry<String, Long> appCopiesEntry : appCopies.entrySet()) {
-            if (System.currentTimeMillis() - appCopiesEntry.getValue() > 10000) {
-                appCopies.remove(appCopiesEntry.getKey());
-                IPOfCopies.remove(appCopiesEntry.getKey());
-                if (IPOfCopies.containsKey(appCopiesEntry.getKey()) && appCopies.containsKey(appCopiesEntry.getKey())) {
-                    System.out.println(IPOfCopies.get(appCopiesEntry.getKey()).toString().substring(1)
-                            + " with UUID \"" + appCopiesEntry.getKey() + "\" sent ping at " +
-                            new SimpleDateFormat("HH:mm:ss").format(appCopies.get(appCopiesEntry.getKey())));
-                }
+    public static ConcurrentHashMap<String, InetAddress> getIPOfCopies() {
+        return IPOfCopies;
+    }
 
-            }
-        }
+    public static ConcurrentHashMap<String, Long> getAppCopies() {
+        return appCopies;
     }
 }
