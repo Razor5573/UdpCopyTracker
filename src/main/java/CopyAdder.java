@@ -21,12 +21,14 @@ public class CopyAdder {
         if (time != null && uuid != null) {
             appCopies.put(uuid, time);
             IPOfCopies.put(uuid, receivedDatagram.getAddress());
-            for (String key : appCopies.keySet()) {
-                System.out.println(IPOfCopies.get(key).toString().substring(1) + " with UUID \"" + key + "\" sent ping at " +
-                        new SimpleDateFormat("HH:mm:ss").format(appCopies.get(key)));
-
+            if(uuid.equals(data)){
+                for (String key : appCopies.keySet()) {
+                    System.out.println(IPOfCopies.get(key).toString().substring(1) + " with UUID \"" + key + "\" sent ping at " +
+                            new SimpleDateFormat("HH:mm:ss").format(appCopies.get(key)));
+                }
+                System.out.println("\n");
             }
-            System.out.println("\n");
+
         }
     }
 
